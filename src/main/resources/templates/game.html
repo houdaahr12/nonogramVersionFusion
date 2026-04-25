@@ -3,52 +3,87 @@
 <head>
     <meta charset="UTF-8">
     <title th:text="${puzzle.title}">Nonogram</title>
-        <link rel="stylesheet" th:href="@{/static/css/game.css}">
-    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Outfit:wght@400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" th:href="@{/static/css/game.css}">
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg viewBox='0 0 16 16' xmlns='http://www.w3.org/2000/svg'><rect x='0' y='0' width='6' height='6' fill='%237b2cbf'/><rect x='1' y='1' width='4' height='4' fill='%239d4edd'/><rect x='2' y='2' width='2' height='2' fill='%23c77dff'/><rect x='6' y='2' width='2' height='3' fill='%237b2cbf'/><rect x='8' y='0' width='8' height='6' fill='%235a189a'/><rect x='9' y='1' width='6' height='4' fill='%237b2cbf'/><rect x='2' y='6' width='3' height='2' fill='%237b2cbf'/><rect x='0' y='8' width='6' height='8' fill='%233c096c'/><rect x='1' y='9' width='4' height='6' fill='%235a189a'/><rect x='2' y='10' width='2' height='4' fill='%237b2cbf'/><rect x='6' y='11' width='2' height='3' fill='%235a189a'/><rect x='8' y='8' width='8' height='8' fill='%237b2cbf'/><rect x='9' y='9' width='6' height='6' fill='%239d4edd'/><rect x='10' y='10' width='4' height='4' fill='%23c77dff'/></svg>">
 </head>
 <body>
 
-<header>
-    <button onclick="saveAndGoHome()" style="background:none; border:none; color:#aad4f5; cursor:pointer; font-size:1rem; text-decoration:underline;">
-    ← Retour au Menu
-</button>
-    <h1 th:text="${puzzle.title}">Puzzle</h1>
-    <p>
-        <span th:text="${puzzle.niveau}"></span>
-        &nbsp;|&nbsp;
-        <span th:text="${puzzle.gridSize} + ' x ' + ${puzzle.gridSize}"></span>
-    </p>
-</header>
+<!-- ── Glow orbs (same as home) ─────────────────────────── -->
+<div class="glow-orb glow-orb-1"></div>
+<div class="glow-orb glow-orb-2"></div>
+
+<!-- ── Nav (mirrors home nav) ───────────────────────────── -->
+<nav>
+    <div class="nav-left">
+        <button class="nav-back" onclick="saveAndGoHome()">← Retour</button>
+        <div class="nav-puzzle-info">
+    <span class="nav-puzzle-title"
+          th:text="${#strings.equals(puzzle.niveau.name(), 'FACILE')} ? 'Niveau Facile' :
+                    (${#strings.equals(puzzle.niveau.name(), 'MOYEN')} ? 'Niveau Moyen' : 'Niveau Difficile')">
+    </span>
+    <span class="nav-puzzle-meta">
+        <span th:text="${puzzle.gridSize} + '×' + ${puzzle.gridSize}"></span>
+    </span>
+</div>
+    </div>
+    <div class="nav-logo">
+        <svg class="pixel-logo" viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg">
+            <rect x="0" y="0" width="6" height="6" fill="#7b2cbf"/>
+            <rect x="1" y="1" width="4" height="4" fill="#9d4edd"/>
+            <rect x="2" y="2" width="2" height="2" fill="#c77dff"/>
+            <rect x="6" y="2" width="2" height="3" fill="#7b2cbf"/>
+            <rect x="8" y="0" width="8" height="6" fill="#5a189a"/>
+            <rect x="9" y="1" width="6" height="4" fill="#7b2cbf"/>
+            <rect x="2" y="6" width="3" height="2" fill="#7b2cbf"/>
+            <rect x="0" y="8" width="6" height="8" fill="#3c096c"/>
+            <rect x="1" y="9" width="4" height="6" fill="#5a189a"/>
+            <rect x="2" y="10" width="2" height="4" fill="#7b2cbf"/>
+            <rect x="6" y="11" width="2" height="3" fill="#5a189a"/>
+            <rect x="8" y="8" width="8" height="8" fill="#7b2cbf"/>
+            <rect x="9" y="9" width="6" height="6" fill="#9d4edd"/>
+            <rect x="10" y="10" width="4" height="4" fill="#c77dff"/>
+        </svg>
+        <span class="nav-title">NONOGRAM</span>
+    </div>
+    <div class="nav-user">
+        <div class="nav-score-badge">
+            <span class="nav-score-value" th:text="${meilleurScore}">0</span>
+            <span class="nav-score-label">⭐ pts</span>
+        </div>
+        <span class="nav-pseudo">👤 <span th:text="${#strings.capitalize(pseudo)}">Joueur</span></span>
+        <a th:href="@{/logout}" class="btn-logout">Déconnexion</a>
+    </div>
+</nav>
 
 <!-- ── WIN overlay ──────────────────────────────────────── -->
-<div id="winOverlay" class="overlay" style="display:none; flex-direction:column;">
-    <div class="overlay-box" style="background:#27ae60;">
+<div id="winOverlay" class="overlay">
+    <div class="overlay-box win-box">
         <div class="emoji">🏆</div>
         <h2>Vous avez gagné !</h2>
-        <img id="winImage" src="" alt="Solution pixel art"
-             style="display:none; width:160px; height:160px;
-                    image-rendering:pixelated; border:3px solid white;
-                    border-radius:8px; margin-bottom:14px;"/>
+        <p style="opacity:0.85; margin:0 0 10px 0;">C'est un <strong th:text="${puzzle.title}">Puzzle</strong> !</p>
+        <img id="winImage" src="" alt="Solution pixel art" class="win-img"/>
         <p>Score final : <strong id="winScore">0</strong></p>
-
-        <!-- Next level button — only if next exists -->
-        <a th:if="${hasNextLevel}"
-           th:href="@{/play/{id}(id=${nextLevelId})}"
-           class="overlay-btn green">
-             Niveau Suivant
-        </a>
-        <a th:href="@{/home}" class="overlay-btn ghost"> Accueil</a>
+        <div class="overlay-actions">
+            <a th:if="${hasNextLevel}"
+               th:href="@{/play/{id}(id=${nextLevelId})}"
+               class="overlay-btn green">▶ Niveau Suivant</a>
+            <a th:href="@{/home}" class="overlay-btn ghost">🏠 Accueil</a>
+        </div>
     </div>
 </div>
 
 <!-- ── GAME OVER overlay ─────────────────────────────────── -->
-<div id="gameOverOverlay" class="overlay" style="display:none; flex-direction:column;">
-    <div class="overlay-box" style="background:#e74c3c;">
+<div id="gameOverOverlay" class="overlay">
+    <div class="overlay-box gameover-box">
         <div class="emoji">💀</div>
         <h2>Game Over</h2>
         <p>Trop d'erreurs sur ce puzzle.</p>
-        <a th:href="@{/play/{id}(id=${puzzle.id})}" class="overlay-btn red">🔄 Réessayer</a>
-        <a th:href="@{/home}" class="overlay-btn ghost">🏠 Menu</a>
+        <div class="overlay-actions">
+            <a th:href="@{/play/{id}(id=${puzzle.id})}" class="overlay-btn red">🔄 Réessayer</a>
+            <a th:href="@{/home}" class="overlay-btn ghost">🏠 Menu</a>
+        </div>
     </div>
 </div>
 
@@ -62,7 +97,6 @@
         <div id="grid-wrapper"></div>
     </div>
 
-    <!-- ── 3 action buttons ──────────────────────────────── -->
     <div class="controls">
         <button class="btn success" id="checkBtn">✅ Vérifier</button>
         <button class="btn warning" id="saveBtn">💾 Sauvegarder</button>
@@ -73,20 +107,20 @@
 </main>
 
 <!-- hidden inputs -->
-<input type="hidden" id="data-solution"   th:value="${puzzle.solutionJson}"/>
-<input type="hidden" id="data-rowclues"   th:value="${puzzle.rowCluesJson}"/>
-<input type="hidden" id="data-colclues"   th:value="${puzzle.colCluesJson}"/>
-<input type="hidden" id="data-size"       th:value="${puzzle.gridSize}"/>
-<input type="hidden" id="data-partieId"   th:value="${partieId}"/>
-<input type="hidden" id="data-score"      th:value="${scoreDepart}"/>
-<input type="hidden" id="data-maxErreurs" th:value="${puzzle.maxErreurs}"/>
-<input type="hidden" id="data-imageUrl"   th:value="${puzzle.imageUrl}"/>
-<input type="hidden" id="ctx"             th:value="${contextPath}"/>
+<input type="hidden" id="data-solution"        th:value="${puzzle.solutionJson}"/>
+<input type="hidden" id="data-rowclues"        th:value="${puzzle.rowCluesJson}"/>
+<input type="hidden" id="data-colclues"        th:value="${puzzle.colCluesJson}"/>
+<input type="hidden" id="data-size"            th:value="${puzzle.gridSize}"/>
+<input type="hidden" id="data-partieId"        th:value="${partieId}"/>
+<input type="hidden" id="data-score"           th:value="${scoreDepart}"/>
+<input type="hidden" id="data-maxErreurs"      th:value="${puzzle.maxErreurs}"/>
+<input type="hidden" id="data-imageUrl"        th:value="${puzzle.imageUrl}"/>
+<input type="hidden" id="ctx"                  th:value="${contextPath}"/>
 <input type="hidden" id="data-grille-courante" th:value="${grilleCourante}"/>
-<input type="hidden" id="data-nb-erreurs"   th:value="${nbErreurs}"/>
-<input type="hidden" id="data-temps-ecoule" th:value="${tempsEcoule}"/>
+<input type="hidden" id="data-nb-erreurs"      th:value="${nbErreurs}"/>
+<input type="hidden" id="data-temps-ecoule"    th:value="${tempsEcoule}"/>
+
 <script>
-// ── Read server data ──────────────────────────────────────
 const ctx        = document.getElementById('ctx').value;
 const solution   = document.getElementById('data-solution').value;
 const rowClues   = document.getElementById('data-rowclues').value;
@@ -96,9 +130,9 @@ const partieId   = parseInt(document.getElementById('data-partieId').value);
 const maxErreurs = parseInt(document.getElementById('data-maxErreurs').value) || 0;
 const imageUrl   = document.getElementById('data-imageUrl').value;
 
-const sol    = JSON.parse(solution);
-const rowC   = JSON.parse(rowClues);
-const colC   = JSON.parse(colClues);
+const sol     = JSON.parse(solution);
+const rowC    = JSON.parse(rowClues);
+const colC    = JSON.parse(colClues);
 const solFlat = sol.flat();
 
 const userGrid = Array(size * size).fill(0);
@@ -108,20 +142,15 @@ let nbErreurs   = parseInt(document.getElementById('data-nb-erreurs').value)   |
 let tempsEcoule = parseInt(document.getElementById('data-temps-ecoule').value) || 0;
 let gameEnded   = false;
 
-// ── Timer ─────────────────────────────────────────────────
 setInterval(() => { if (!gameEnded) tempsEcoule++; }, 1000);
 
-// ── Build table ───────────────────────────────────────────
 const wrapper = document.getElementById('grid-wrapper');
 const table   = document.createElement('table');
 table.className    = 'nonogram';
 table.dataset.size = size;
 
-//Prevent browser back button — replace history state
 history.pushState(null, '', window.location.href);
-window.addEventListener('popstate', () => {
-    saveAndGoHome();
-});
+window.addEventListener('popstate', () => { saveAndGoHome(); });
 
 const headRow = document.createElement('tr');
 const corner  = document.createElement('td');
@@ -158,7 +187,6 @@ for (let r = 0; r < size; r++) {
 }
 wrapper.appendChild(table);
 
-// ── Mode toggle ───────────────────────────────────────────
 document.getElementById('btnFill').addEventListener('click', () => setMode('fill'));
 document.getElementById('btnMark').addEventListener('click', () => setMode('mark'));
 
@@ -171,24 +199,19 @@ function setMode(m) {
 function clickCell(cell, r, c) {
     if (gameEnded || cell.classList.contains('locked') || cell.classList.contains('wrong-instant')) return;
     const index = r * size + c;
-
     if (mode === 'fill') {
-        const isFilledNow = userGrid[index] === 1;
-        if (isFilledNow) {
-            // Toggle off
+        if (userGrid[index] === 1) {
             userGrid[index] = 0;
             cell.classList.remove('filled');
             cell.textContent = '';
         } else {
             if (solFlat[index] === 1) {
-                // Correct cell
                 userGrid[index] = 1;
                 cell.classList.add('filled');
                 cell.classList.remove('marked');
                 cell.textContent = '';
                 checkAutoWin();
             } else {
-                // Wrong cell — instant red + X, locked
                 userGrid[index] = 3;
                 cell.classList.add('wrong-instant', 'locked');
                 cell.textContent = '✕';
@@ -208,7 +231,7 @@ function clickCell(cell, r, c) {
     }
     sendUpdate();
 }
-// ── Auto win check — called after every correct fill ─────
+
 function checkAutoWin() {
     for (let i = 0; i < size * size; i++) {
         if (solFlat[i] === 1 && userGrid[i] !== 1) return;
@@ -216,7 +239,6 @@ function checkAutoWin() {
     handleWin();
 }
 
-// ── Current grid as 2D JSON string ───────────────────────
 function currentGridJson() {
     return JSON.stringify(
         Array.from({length: size}, (_, r) =>
@@ -225,98 +247,74 @@ function currentGridJson() {
     );
 }
 
-// ── Send update on every click ────────────────────────────
 function sendUpdate() {
     fetch('/nonogram/api/partie/update', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         credentials: 'include',
-        body: JSON.stringify({
-            partieId, grilleCourante: currentGridJson(),
-            scoreActuel: score, nbErreurs, tempsEcoule
-        })
+        body: JSON.stringify({ partieId, grilleCourante: currentGridJson(), scoreActuel: score, nbErreurs, tempsEcoule })
     });
 }
 
-// ── VÉRIFIER button (optional progress check) ─────────────
 document.getElementById('checkBtn').addEventListener('click', () => {
     if (gameEnded) return;
     let filled = 0;
-    let total = solFlat.filter(v => v === 1).length;
+    const total = solFlat.filter(v => v === 1).length;
     for (let i = 0; i < size * size; i++) {
         if (solFlat[i] === 1 && userGrid[i] === 1) filled++;
     }
     if (filled === total) {
         handleWin();
     } else {
-        showMessage(`🔍 ${filled} / ${total} cases correctes remplies.`, '#2980b9');
+        showMessage(`🔍 ${filled} / ${total} cases correctes remplies.`, 'var(--purple-glow)');
         setTimeout(() => showMessage('', ''), 2500);
     }
 });
 
-// ── SAUVEGARDER button ────────────────────────────────────
 document.getElementById('saveBtn').addEventListener('click', () => {
     if (gameEnded) return;
     fetch('/nonogram/api/partie/sauvegarder', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-            partieId, grilleCourante: currentGridJson(),
-            scoreActuel: score, nbErreurs, tempsEcoule
-        })
+        body: JSON.stringify({ partieId, grilleCourante: currentGridJson(), scoreActuel: score, nbErreurs, tempsEcoule })
     }).then(r => r.json()).then(() => {
-        showMessage('💾 Partie sauvegardée !', '#2980b9');
+        showMessage('💾 Partie sauvegardée !', 'var(--purple-glow)');
         setTimeout(() => showMessage('', ''), 2000);
     });
 });
 
-// ── NOUVELLE button — resets the grid ────────────────────
 document.getElementById('newBtn').addEventListener('click', () => {
     if (!confirm('Commencer une nouvelle partie ? La progression non sauvegardée sera perdue.')) return;
-
-    // Reset state
     userGrid.fill(0);
     nbErreurs   = 0;
     tempsEcoule = 0;
     gameEnded   = false;
     score       = parseInt(document.getElementById('data-score').value) || 0;
-
-    // Reset all cells visually
     document.querySelectorAll('.cell').forEach(c => {
         c.className  = 'cell';
         c.textContent = '';
         c.style.background     = '';
         c.style.animationDelay = '';
     });
-
     showMessage('', '');
-
-    // Tell backend to quit current partie and start fresh
     fetch('/nonogram/api/partie/quitter', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         credentials: 'include',
-
         body: JSON.stringify({ partieId })
-    }).then(() => {
-        // Reload the page to get a fresh partieId from the server
-        window.location.reload();
-    });
+    }).then(() => { window.location.reload(); });
 });
 
-// ── Win ───────────────────────────────────────────────────
 function handleWin() {
     gameEnded = true;
     document.querySelectorAll('.cell').forEach(c => c.classList.add('locked'));
-    showMessage('🎉 Félicitations ! Vous avez gagné !', '#27ae60');
+    showMessage('🎉 Félicitations ! Vous avez gagné !', 'var(--cell-correct)');
 
-    // Collect filled cells for pixel reveal
     const filled = [];
     for (let r = 0; r < size; r++)
         for (let c = 0; c < size; c++)
             if (sol[r][c] === 1) filled.push({r, c});
 
-    // Staggered pixel reveal
     filled.forEach(({r, c}, i) => {
         const cell = table.querySelector(`[data-row="${r}"][data-col="${c}"]`);
         cell.classList.remove('filled', 'marked', 'correct');
@@ -332,7 +330,6 @@ function handleWin() {
         }, i * 25);
     });
 
-    // Show overlay after reveal finishes
     const delay = filled.length * 25 + 600;
     setTimeout(() => {
         document.getElementById('winScore').textContent = score;
@@ -344,102 +341,61 @@ function handleWin() {
         document.getElementById('winOverlay').style.display = 'flex';
     }, delay);
 
-    // Notify backend
     fetch('/nonogram/api/partie/terminer', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         credentials: 'include',
-
         body: JSON.stringify({ partieId, scoreFinal: score })
     });
 }
 
-// ── Game over ─────────────────────────────────────────────
 function handleGameOver() {
     gameEnded = true;
     document.querySelectorAll('.cell').forEach(c => c.classList.add('locked'));
-    showMessage('💀 Game Over ! Trop d\'erreurs.', '#e74c3c');
+    showMessage('💀 Game Over ! Trop d\'erreurs.', 'var(--cell-wrong)');
     document.getElementById('gameOverOverlay').style.display = 'flex';
     fetch('/nonogram/api/partie/gameover', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         credentials: 'include',
-
         body: JSON.stringify({ partieId })
     });
 }
 
-// ── Message helper ────────────────────────────────────────
 function showMessage(text, color) {
     const msg = document.getElementById('message');
     msg.textContent = text;
     msg.style.color = color;
 }
 
-// ── Keyboard shortcuts ────────────────────────────────────
 document.addEventListener('keydown', e => {
     if (e.key === 'f' || e.key === 'F') { setMode('fill'); e.preventDefault(); }
     if (e.key === 'm' || e.key === 'M') { setMode('mark'); e.preventDefault(); }
     if (e.key === 'Enter') { document.getElementById('checkBtn').click(); e.preventDefault(); }
 });
-//── Restore saved grid if resuming ────────────────────────
+
 const savedGridRaw = document.getElementById('data-grille-courante').value;
 if (savedGridRaw && savedGridRaw !== 'null') {
     const savedGrid = JSON.parse(savedGridRaw);
-
     for (let r = 0; r < size; r++) {
         for (let c = 0; c < size; c++) {
-            const val = savedGrid[r][c];  // ← read from savedGrid not userGrid
-            userGrid[r * size + c] = val; // ← update userGrid
-
+            const val = savedGrid[r][c];
+            userGrid[r * size + c] = val;
             const cell = table.querySelector(`[data-row="${r}"][data-col="${c}"]`);
-            if (val === 1) {
-                cell.classList.add('filled');
-            } else if (val === 2) {
-                cell.classList.add('marked');
-                cell.textContent = '✕';
-            } else if (val === 3) {
-                cell.classList.add('wrong-instant', 'locked');
-                cell.textContent = '✕';
-            }
-        }
-    }
-}
-//── Render saved grid state on cells ─────────────────────
-if (savedGridRaw && savedGridRaw !== 'null') {
-    for (let r = 0; r < size; r++) {
-        for (let c = 0; c < size; c++) {
-            const val = userGrid[r * size + c];
-            const cell = table.querySelector(`[data-row="${r}"][data-col="${c}"]`);
-            if (val === 1) {
-                cell.classList.add('filled');
-            } else if (val === 2) {
-                cell.classList.add('marked');
-                cell.textContent = '✕';
-            }
+            if (val === 1)      { cell.classList.add('filled'); }
+            else if (val === 2) { cell.classList.add('marked'); cell.textContent = '✕'; }
+            else if (val === 3) { cell.classList.add('wrong-instant', 'locked'); cell.textContent = '✕'; }
         }
     }
 }
 
 function saveAndGoHome() {
-    if (gameEnded) {
-        window.location.href = '/nonogram/home';
-        return;
-    }
-    // Save first then redirect
+    if (gameEnded) { window.location.href = '/nonogram/home'; return; }
     fetch('/nonogram/api/partie/sauvegarder', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-            partieId,
-            grilleCourante: currentGridJson(),
-            scoreActuel: score,
-            nbErreurs,
-            tempsEcoule
-        })
-    }).then(() => {
-        window.location.href = '/nonogram/home';
-    });
+        body: JSON.stringify({ partieId, grilleCourante: currentGridJson(), scoreActuel: score, nbErreurs, tempsEcoule })
+    }).then(() => { window.location.href = '/nonogram/home'; });
 }
 </script>
 </body>

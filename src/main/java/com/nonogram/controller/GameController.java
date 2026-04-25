@@ -86,16 +86,16 @@ public class GameController {
         model.addAttribute("partieId", partie.getId());
         model.addAttribute("scoreDepart", partie.getScoreActuel());
 
-        // FIX: pass the saved grid so the frontend can restore cell states
         model.addAttribute("grilleCourante", partie.getGrilleCourante());
 
-        // FIX: pass saved error and time counters so the game resumes correctly
-        model.addAttribute("nbErreurs", partie.getNbErreurs());
-        model.addAttribute("tempsEcoule", partie.getTempsEcoule());
-
-        // Player stats for the header
         String pseudo = (String) session.getAttribute("pseudo");
         Joueur joueur = joueurService.findByPseudo(pseudo);
+        model.addAttribute("pseudo", pseudo);  // ← ADD THIS
+        model.addAttribute("meilleurScore", joueur.getMeilleurScore());
+        model.addAttribute("totalParties", partieService.countByJoueur(joueur));        model.addAttribute("nbErreurs", partie.getNbErreurs());
+        model.addAttribute("tempsEcoule", partie.getTempsEcoule());
+        
+
         model.addAttribute("meilleurScore", joueur.getMeilleurScore());
         model.addAttribute("totalParties", partieService.countByJoueur(joueur)); 
         boolean hasNext = gameService.hasNextLevel(partie.getPuzzle().getNiveau());
@@ -129,8 +129,9 @@ public class GameController {
         model.addAttribute("puzzle", puzzle);
         model.addAttribute("partieId", partie.getId());
         model.addAttribute("scoreDepart", partie.getScoreActuel());
+        model.addAttribute("pseudo", pseudo);  // ← ADD THIS
         model.addAttribute("meilleurScore", joueur.getMeilleurScore());
-        model.addAttribute("totalParties", joueur.getTotalParties());
+        model.addAttribute("totalParties", partieService.countByJoueur(joueur));
 
         // For a fresh game: no saved grid, no errors, no elapsed time
         model.addAttribute("grilleCourante", null);

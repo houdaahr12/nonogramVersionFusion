@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="fr" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nonogram - Accueil</title>
+        <link rel="stylesheet" th:href="@{/static/css/home.css}">
+    
+    <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Outfit:wght@300;400;600;700&display=swap" rel="stylesheet">
+    
+</head>
+<body>
+
+<div class="glow-orb glow-orb-1"></div>
+<div class="glow-orb glow-orb-2"></div>
+
+<nav>
+    <div class="nav-logo">
+        <svg class="pixel-logo" viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg">
+            <rect x="0" y="0" width="6" height="6" fill="#7b2cbf"/>
+            <rect x="1" y="1" width="4" height="4" fill="#9d4edd"/>
+            <rect x="2" y="2" width="2" height="2" fill="#c77dff"/>
+            <rect x="6" y="2" width="2" height="3" fill="#7b2cbf"/>
+            <rect x="8" y="0" width="8" height="6" fill="#5a189a"/>
+            <rect x="9" y="1" width="6" height="4" fill="#7b2cbf"/>
+            <rect x="2" y="6" width="3" height="2" fill="#7b2cbf"/>
+            <rect x="0" y="8" width="6" height="8" fill="#3c096c"/>
+            <rect x="1" y="9" width="4" height="6" fill="#5a189a"/>
+            <rect x="2" y="10" width="2" height="4" fill="#7b2cbf"/>
+            <rect x="6" y="11" width="2" height="3" fill="#5a189a"/>
+            <rect x="8" y="8" width="8" height="8" fill="#7b2cbf"/>
+            <rect x="9" y="9" width="6" height="6" fill="#9d4edd"/>
+            <rect x="10" y="10" width="4" height="4" fill="#c77dff"/>
+        </svg>
+        <span class="nav-title">NONOGRAM</span>
+    </div>
+    <div class="nav-user">
+        <span>👤 <span th:text="${#strings.capitalize(pseudo)}">Joueur</span></span>
+        <a th:href="@{/logout}" class="btn-logout">Déconnexion</a>
+    </div>
+</nav>
+
+<div class="wrapper">
+
+    <div class="hero">
+        <p class="hero-greeting">✦ BIENVENUE ✦</p>
+        <h1 class="hero-name">Bonjour, <span th:text="${#strings.capitalize(pseudo)}">Joueur</span> !</h1>
+        <p class="hero-sub">Prêt à résoudre des puzzles ? Choisis ton niveau et commence !</p>
+    </div>
+
+    <div class="stats-bar">
+        <div class="stat-card">
+            <span class="stat-value" th:text="${meilleurScore}">0</span>
+            <span class="stat-label">⭐ Meilleur Score</span>
+        </div>
+        <div class="stat-card">
+            <span class="stat-value" th:text="${totalParties}">0</span>
+            <span class="stat-label">🧩 Parties Jouées</span>
+        </div>
+        <div class="stat-card">
+            <span class="stat-value">3</span>
+            <span class="stat-label">🎯 Niveaux Disponibles</span>
+        </div>
+    </div>
+
+    <p class="section-title">— CHOISIR UN NIVEAU —</p>
+
+    <div class="levels-grid">
+
+       <div th:each="puzzle : ${puzzles}"
+     th:classappend="${#strings.equals(puzzle.niveau.name(), 'FACILE')} ? 'facile' : (${#strings.equals(puzzle.niveau.name(), 'MOYEN')} ? 'moyen' : 'difficile')"
+     class="level-card">
+
+    <!-- SVG décoratif haut droite — différent selon niveau -->
+     <svg th:if="${#strings.equals(puzzle.niveau.name(), 'FACILE')}"
+         class="pixel-grid-deco" width="55" height="55" viewBox="0 0 55 55">
+        <g fill="#56cfe1" opacity="0.25">
+            <rect x="0"  y="0"  width="9" height="9"/>
+            <rect x="12" y="0"  width="9" height="9"/>
+            <rect x="24" y="0"  width="9" height="9"/>
+            <rect x="36" y="0"  width="9" height="9"/>
+            <rect x="48" y="0"  width="7" height="9"/>
+            <rect x="0"  y="12" width="9" height="9"/>
+            <rect x="24" y="12" width="9" height="9"/>
+            <rect x="48" y="12" width="7" height="9"/>
+            <rect x="0"  y="24" width="9" height="9"/>
+            <rect x="12" y="24" width="9" height="9"/>
+            <rect x="24" y="24" width="9" height="9"/>
+            <rect x="36" y="24" width="9" height="9"/>
+            <rect x="0"  y="36" width="9" height="9"/>
+            <rect x="36" y="36" width="9" height="9"/>
+            <rect x="0"  y="48" width="9" height="7"/>
+            <rect x="12" y="48" width="9" height="7"/>
+            <rect x="24" y="48" width="9" height="7"/>
+            <rect x="36" y="48" width="9" height="7"/>
+            <rect x="48" y="48" width="7" height="7"/>
+        </g>
+    </svg>
+
+    <svg th:if="${#strings.equals(puzzle.niveau.name(), 'MOYEN')}"
+         class="pixel-grid-deco" width="55" height="55" viewBox="0 0 55 55">
+        <g fill="#f4a261" opacity="0.25">
+            <rect x="0"  y="0"  width="6" height="6"/>
+            <rect x="8"  y="0"  width="6" height="6"/>
+            <rect x="16" y="0"  width="6" height="6"/>
+            <rect x="24" y="0"  width="6" height="6"/>
+            <rect x="32" y="0"  width="6" height="6"/>
+            <rect x="40" y="0"  width="6" height="6"/>
+            <rect x="48" y="0"  width="7" height="6"/>
+            <rect x="0"  y="8"  width="6" height="6"/>
+            <rect x="16" y="8"  width="6" height="6"/>
+            <rect x="32" y="8"  width="6" height="6"/>
+            <rect x="48" y="8"  width="7" height="6"/>
+            <rect x="0"  y="16" width="6" height="6"/>
+            <rect x="8"  y="16" width="6" height="6"/>
+            <rect x="16" y="16" width="6" height="6"/>
+            <rect x="24" y="16" width="6" height="6"/>
+            <rect x="32" y="16" width="6" height="6"/>
+            <rect x="40" y="16" width="6" height="6"/>
+            <rect x="48" y="16" width="7" height="6"/>
+            <rect x="0"  y="24" width="6" height="6"/>
+            <rect x="24" y="24" width="6" height="6"/>
+            <rect x="48" y="24" width="7" height="6"/>
+            <rect x="0"  y="32" width="6" height="6"/>
+            <rect x="8"  y="32" width="6" height="6"/>
+            <rect x="24" y="32" width="6" height="6"/>
+            <rect x="32" y="32" width="6" height="6"/>
+        </g>
+    </svg>
+
+    <svg th:if="${#strings.equals(puzzle.niveau.name(), 'DIFFICILE')}"
+         class="pixel-grid-deco" width="55" height="55" viewBox="0 0 55 55">
+        <g fill="#e63946" opacity="0.25">
+            <rect x="0"  y="0"  width="4" height="4"/>
+            <rect x="6"  y="0"  width="4" height="4"/>
+            <rect x="12" y="0"  width="4" height="4"/>
+            <rect x="18" y="0"  width="4" height="4"/>
+            <rect x="24" y="0"  width="4" height="4"/>
+            <rect x="30" y="0"  width="4" height="4"/>
+            <rect x="36" y="0"  width="4" height="4"/>
+            <rect x="42" y="0"  width="4" height="4"/>
+            <rect x="48" y="0"  width="4" height="4"/>
+            <rect x="0"  y="6"  width="4" height="4"/>
+            <rect x="18" y="6"  width="4" height="4"/>
+            <rect x="36" y="6"  width="4" height="4"/>
+            <rect x="0"  y="12" width="4" height="4"/>
+            <rect x="6"  y="12" width="4" height="4"/>
+            <rect x="12" y="12" width="4" height="4"/>
+            <rect x="18" y="12" width="4" height="4"/>
+            <rect x="24" y="12" width="4" height="4"/>
+            <rect x="0"  y="18" width="4" height="4"/>
+            <rect x="24" y="18" width="4" height="4"/>
+            <rect x="48" y="18" width="4" height="4"/>
+            <rect x="0"  y="24" width="4" height="4"/>
+            <rect x="6"  y="24" width="4" height="4"/>
+            <rect x="12" y="24" width="4" height="4"/>
+            <rect x="18" y="24" width="4" height="4"/>
+            <rect x="24" y="24" width="4" height="4"/>
+            <rect x="30" y="24" width="4" height="4"/>
+        </g>
+    </svg>
+
+    <!-- Badge niveau -->
+    <span class="level-badge" th:text="${puzzle.niveau.name()}">FACILE</span>
+
+    <!-- Titre niveau -->
+    <span class="level-name"
+          th:text="${#strings.equals(puzzle.niveau.name(), 'FACILE')} ? 'Débutant' :
+                    (${#strings.equals(puzzle.niveau.name(), 'MOYEN')} ? 'Intermédiaire' : 'Expert')">
+    </span>
+
+    <!-- Description -->
+    <p class="level-desc"
+       th:text="${#strings.equals(puzzle.niveau.name(), 'FACILE')} ?
+                'Grilles 5×5 simples. Parfait pour apprendre les règles du Nonogram sans pression.' :
+                (${#strings.equals(puzzle.niveau.name(), 'MOYEN')} ?
+                'Grilles 10×10 plus complexes. Les erreurs sont limitées, il faut réfléchir !' :
+                'Grilles 15×15 pour les vrais experts. Seulement 3 erreurs autorisées !')">
+    </p>
+
+    <!-- Tags -->
+    <div class="level-info">
+        <span class="level-tag" th:text="${puzzle.gridSize} + ' × ' + ${puzzle.gridSize}"></span>
+        <span class="level-tag"
+              th:text="${#strings.equals(puzzle.niveau.name(), 'FACILE')} ? 'Erreurs illimitées' :
+                        (${#strings.equals(puzzle.niveau.name(), 'MOYEN')} ? '5 erreurs max' : '3 erreurs max')">
+        </span>
+        <span class="level-tag"
+              th:text="${#strings.equals(puzzle.niveau.name(), 'FACILE')} ? '1000 pts max' :
+                        (${#strings.equals(puzzle.niveau.name(), 'MOYEN')} ? '3000 pts max' : '5000 pts max')">
+        </span>
+    </div>
+
+    <!-- Boutons -->
+    <div class="card-buttons">
+        <a th:href="@{/play/{id}(id=${puzzle.id})}" class="btn-jouer">▶ JOUER</a>
+        <a th:if="${savedPartieIds != null and savedPartieIds.containsKey(puzzle.id)}"
+           th:href="@{/resume/{partieId}(partieId=${savedPartieIds.get(puzzle.id)})}"
+           class="btn-reprendre">
+            ↩ REPRENDRE
+        </a>
+    </div>
+
+</div>
+
+    
+</div>
+<footer>
+        <p>NONOGRAM © 2026</p>
+    </footer>
+
+
+</body>
+</html>

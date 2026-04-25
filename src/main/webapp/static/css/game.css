@@ -1,0 +1,135 @@
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { font-family: Arial, sans-serif; background: #f0f4f8; text-align: center; }
+
+        header { background: #2c3e50; color: white; padding: 16px; margin-bottom: 20px; }
+        header a { color: #aad4f5; text-decoration: none; }
+        header h1 { margin-top: 8px; font-size: 1.6rem; }
+        header p  { margin-top: 6px; opacity: 0.85; }
+
+        .grid-container {
+            overflow-x: auto; margin: 20px auto; padding: 10px;
+            display: flex; justify-content: center;
+        }
+        table.nonogram { border-collapse: collapse; margin: 0 auto; min-width: min-content; }
+        td.corner { background: #f0f4f8; border: none; min-width: 40px; }
+        td.col-clue {
+            text-align: center; vertical-align: bottom; padding: 6px 2px;
+            font-size: 0.85rem; font-weight: bold; color: #2c3e50;
+            background: #dce8f5; border: 1px solid #aac;
+        }
+        td.col-clue div { line-height: 1.6; white-space: nowrap; }
+        td.row-clue {
+            text-align: right; vertical-align: middle; padding: 4px 10px;
+            font-size: 0.85rem; font-weight: bold; color: #2c3e50;
+            background: #dce8f5; border: 1px solid #aac; white-space: nowrap;
+        }
+        td.cell {
+            background: white; border: 1px solid #aaa; cursor: pointer;
+            text-align: center; vertical-align: middle; font-size: 1rem;
+            transition: background 0.1s;
+        }
+        table[data-size="5"]  td.cell { width: 40px; height: 40px; }
+        table[data-size="10"] td.cell { width: 35px; height: 35px; }
+        table[data-size="15"] td.cell { width: 30px; height: 30px; }
+        table[data-size="10"] td.cell { font-size: 0.9rem; }
+        table[data-size="15"] td.cell { font-size: 0.8rem; }
+        @media (max-width: 768px) {
+            table[data-size="5"]  td.cell { width: 35px; height: 35px; }
+            table[data-size="10"] td.cell { width: 25px; height: 25px; }
+            table[data-size="15"] td.cell { width: 20px; height: 20px; font-size: 0.7rem; }
+        }
+        td.cell:hover   { background: #d0e8ff; }
+        td.cell.filled  { background: #2c3e50; color: white; }
+        td.cell.marked  { background: white; color: #c0392b; font-weight: bold; }
+        td.cell.correct { background: #27ae60 !important; color: white; }
+        td.cell.wrong   { background: #e74c3c !important; }
+        td.cell.locked  { cursor: not-allowed; }
+        td.cell.wrong-instant {
+            background: #e74c3c !important;
+            color: white !important;
+            cursor: not-allowed;
+            animation: shakeCell 0.35s ease;
+        }
+        @keyframes shakeCell {
+            0%,100% { transform: translateX(0); }
+            25%      { transform: translateX(-4px); }
+            75%      { transform: translateX(4px); }
+        }
+
+        /* pixel win animation */
+        @keyframes pixelReveal {
+            0%   { transform: scale(0) rotate(180deg); opacity: 0; }
+            60%  { transform: scale(1.2); }
+            100% { transform: scale(1); opacity: 1; background: #27ae60; }
+        }
+        @keyframes wave {
+            0%, 100% { transform: translateY(0); }
+            50%       { transform: translateY(-5px); }
+        }
+        @keyframes popIn {
+            0%   { transform: scale(0) rotate(-15deg); opacity: 0; }
+            70%  { transform: scale(1.1) rotate(3deg); }
+            100% { transform: scale(1) rotate(0deg); opacity: 1; }
+        }
+        td.cell.pixel-win  { animation: pixelReveal 0.4s ease forwards; }
+        td.cell.pixel-wave { animation: wave 0.7s ease infinite; background: #27ae60 !important; }
+        #winImage.visible  {
+            display: block !important;
+            animation: popIn 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+        }
+
+        /* Mode toggle */
+        .mode-toggle { margin: 16px; }
+        .mode-toggle button {
+            padding: 8px 20px; margin: 4px;
+            border: 2px solid #2c3e50; border-radius: 6px;
+            cursor: pointer; font-size: 0.95rem; background: white;
+        }
+        .mode-toggle button.active { background: #2c3e50; color: white; }
+
+        /* Controls */
+        .controls { margin: 16px; }
+        .btn {
+            padding: 10px 24px; margin: 6px;
+            background: #2c3e50; color: white;
+            border: none; border-radius: 8px;
+            font-size: 1rem; cursor: pointer; transition: background 0.2s;
+        }
+        .btn:hover    { background: #1a252f; }
+        .btn.success  { background: #27ae60; }
+        .btn.success:hover { background: #229954; }
+        .btn.warning  { background: #e67e22; }
+        .btn.warning:hover { background: #ca6f1e; }
+        .btn.danger   { background: #7f8c8d; }
+        .btn.danger:hover  { background: #5d6d6e; }
+
+        #message {
+            font-size: 1.2rem; font-weight: bold;
+            margin: 16px; min-height: 30px;
+        }
+
+        /* ── WIN overlay ─────────────────────────────── */
+        .overlay {
+            display: none; position: fixed; inset: 0;
+            background: rgba(0,0,0,0.82); z-index: 100;
+            flex-direction: column; align-items: center; justify-content: center;
+        }
+        .overlay-box {
+            border-radius: 16px; padding: 40px 56px;
+            text-align: center; color: white;
+            box-shadow: 0 8px 40px rgba(0,0,0,0.5);
+            max-width: 420px; width: 90%;
+        }
+        .overlay-box .emoji { font-size: 3.5rem; margin-bottom: 10px; }
+        .overlay-box h2    { font-size: 1.8rem; margin-bottom: 10px; }
+        .overlay-box p     { opacity: 0.9; margin-bottom: 20px; font-size: 1rem; }
+        .overlay-btn {
+            display: inline-block; padding: 11px 28px; border-radius: 8px;
+            text-decoration: none; font-weight: bold; margin: 5px;
+            font-size: 0.95rem; cursor: pointer; border: none;
+            transition: opacity 0.2s;
+        }
+        .overlay-btn:hover { opacity: 0.85; }
+        .overlay-btn.green  { background: white; color: #27ae60; }
+        .overlay-btn.ghost  { background: rgba(255,255,255,0.18); color: white; }
+        .overlay-btn.red    { background: white; color: #e74c3c; }

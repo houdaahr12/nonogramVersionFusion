@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <title>Nonogram — Connexion</title>
+    <link rel="stylesheet" th:href="@{/static/css/login.css}">
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🧩</text></svg>">
+    
+</head>
+<body>
+
+<div class="left-panel">
+    <div class="floating-symbols" id="symbols"></div>
+    
+    <div class="game-title">NONOGRAM</div>
+    <div class="game-subtitle">► PIXEL PUZZLE GAME ◄</div>
+    <div class="pixel-demo" id="pixelGrid"></div>
+    <!--  
+    <div class="clues-display">
+        <div class="clue-col">
+            <div class="clue-label">LIGNES</div>
+            <div>1</div><div>3</div><div>5</div><div>3</div><div>1</div>
+        </div>
+        <div class="clue-col">
+            <div class="clue-label">COLONNES</div>
+            <div>1</div><div>3</div><div>5</div><div>3</div><div>1</div>
+        </div>
+    </div> -->
+</div>
+
+<div class="right-panel">
+    <div class="form-container">
+
+        <div class="form-header">
+<h2 style="display:flex; flex-direction:column; align-items:center; gap:10px;">
+    <svg class="pixel-logo" viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg" style="width:40px;height:40px;">
+        <rect x="0" y="0" width="6" height="6" fill="#7b2cbf"/>
+        <rect x="1" y="1" width="4" height="4" fill="#9d4edd"/>
+        <rect x="2" y="2" width="2" height="2" fill="#c77dff"/>
+        <rect x="6" y="2" width="2" height="3" fill="#7b2cbf"/>
+        <rect x="8" y="0" width="8" height="6" fill="#5a189a"/>
+        <rect x="9" y="1" width="6" height="4" fill="#7b2cbf"/>
+        <rect x="2" y="6" width="3" height="2" fill="#7b2cbf"/>
+        <rect x="0" y="8" width="6" height="8" fill="#3c096c"/>
+        <rect x="1" y="9" width="4" height="6" fill="#5a189a"/>
+        <rect x="2" y="10" width="2" height="4" fill="#7b2cbf"/>
+        <rect x="6" y="11" width="2" height="3" fill="#5a189a"/>
+        <rect x="8" y="8" width="8" height="8" fill="#7b2cbf"/>
+        <rect x="9" y="9" width="6" height="6" fill="#9d4edd"/>
+        <rect x="10" y="10" width="4" height="4" fill="#c77dff"/>
+    </svg>
+    NONOGRAM
+</h2>            <p>Connectez-vous pour jouer</p>
+        </div>
+
+        <div class="tabs">
+            <button class="tab active" onclick="showTab('login', this)">▶ CONNEXION</button>
+            <button class="tab"        onclick="showTab('register', this)">＋ INSCRIPTION</button>
+        </div>
+
+        <!-- LOGIN -->
+        <div class="form-section active" id="loginForm">
+            <div class="input-group">
+                <label>USERNAME</label>
+                <input type="text" id="loginPseudo" placeholder="Votre username" autocomplete="off"/>
+            </div>
+            <div class="input-group">
+                <label>MOT DE PASSE</label>
+                <input type="password" id="loginPassword" placeholder="••••••••"/>
+            </div>
+            <button class="submit-btn" onclick="handleLogin()">▶ SE CONNECTER</button>
+            <div class="msg" id="loginMsg"></div>
+        </div>
+
+        <!-- REGISTER -->
+        <div class="form-section" id="registerForm">
+            <div class="input-group">
+                <label>USERNAME</label>
+                <input type="text" id="regPseudo" placeholder="Choisis un username..." autocomplete="off"/>
+            </div>
+            <div class="input-group">
+                <label>MOT DE PASSE</label>
+                <input type="password" id="regPassword" placeholder="••••••••"/>
+            </div>
+            <button class="submit-btn" onclick="handleRegister()">＋ S'INSCRIRE</button>
+            <div class="msg" id="registerMsg"></div>
+        </div>
+
+    </div>
+</div>
+
+<script>
+    // ── Tab switching ─────────────────────────────────────────
+    function showTab(tab, btn) {
+        document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+        document.querySelectorAll('.form-section').forEach(f => f.classList.remove('active'));
+        document.getElementById(tab + 'Form').classList.add('active');
+        btn.classList.add('active');
+    }
+
+    // ── Login → appel API réel ────────────────────────────────
+    async function handleLogin() {
+        const pseudo   = document.getElementById('loginPseudo').value.trim();
+        const password = document.getElementById('loginPassword').value.trim();
+        const msg      = document.getElementById('loginMsg');
+
+        if (!pseudo || !password) {
+            msg.textContent = '⚠ Remplis tous les champs !';
+            msg.className = 'msg error';
+            return;
+        }
+
+        try {
+            const response = await fetch('/nonogram/api/auth/login', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ pseudo, password })
+            });
+
+            const data = await response.json();
+
+            if (response.ok) {
+                msg.textContent = '✓ Connexion réussie !';
+                msg.className = 'msg success';
+                // Save pseudo in session storage
+                sessionStorage.setItem('pseudo', data.pseudo);
+                setTimeout(() => window.location.href = '/nonogram/home', 1000);
+            } else {
+                msg.textContent = '✗ ' + data.message;
+                msg.className = 'msg error';
+            }
+        } catch (e) {
+            msg.textContent = '✗ Erreur serveur';
+            msg.className = 'msg error';
+        }
+    }
+
+    // ── Register → appel API réel ─────────────────────────────
+    async function handleRegister() {
+    const pseudo   = document.getElementById('regPseudo').value.trim();
+    const password = document.getElementById('regPassword').value.trim();
+    const msg      = document.getElementById('registerMsg');
+
+    if (!pseudo || !password) {
+        msg.textContent = '⚠ Remplis tous les champs !';
+        msg.className = 'msg error';
+        return;
+    }
+
+    if (pseudo.length < 3) {
+        msg.textContent = '✗ Pseudo trop court (min 3 caractères)';
+        msg.className = 'msg error';
+        return;
+    }
+
+    try {
+        const response = await fetch('/nonogram/api/auth/register', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ pseudo, password })
+        });
+
+        const data = await response.json();
+
+        if (response.ok) {
+            msg.textContent = '✓ Compte créé avec succés!';
+            msg.className = 'msg success';
+            sessionStorage.setItem('pseudo', pseudo);
+            setTimeout(() => window.location.href = '/nonogram/home', 1000);
+        } else {
+            if (data.message === 'Pseudo déjà utilisé') {
+                msg.textContent = '✗ Compte existant — connectez-vous !';
+                msg.className = 'msg error';
+                setTimeout(() => document.querySelectorAll('.tab')[0].click(), 2000);
+            } else {
+                msg.textContent = '✗ ' + data.message;
+                msg.className = 'msg error';
+            }
+        }
+    } catch (e) {
+        msg.textContent = '✗ Erreur serveur';
+        msg.className = 'msg error';
+    }
+}
+
+    // ── Pixel grid animation ──────────────────────────────────
+    const grid = document.getElementById('pixelGrid');
+    const diamond = [
+        0,0,0,1,0,0,0,
+        0,0,1,1,1,0,0,
+        0,1,1,1,1,1,0,
+        1,1,1,1,1,1,1,
+        0,1,1,1,1,1,0,
+        0,0,1,1,1,0,0,
+        0,0,0,1,0,0,0,
+    ];
+
+    const cells = [];
+    diamond.forEach(val => {
+        const px = document.createElement('div');
+        px.className = 'px' + (val ? ' on' : '');
+        grid.appendChild(px);
+        cells.push(px);
+    });
+
+    setInterval(() => {
+        const i = Math.floor(Math.random() * cells.length);
+        if (diamond[i] === 1) cells[i].classList.toggle('on2');
+    }, 300);
+
+    // ── Floating symbols ──────────────────────────────────────
+    const symbolList = ['■','□','▪','▫','◼','◻','⬛','⬜','▰','▱'];
+    const container  = document.getElementById('symbols');
+
+    function spawnSymbol() {
+        const span = document.createElement('span');
+        span.className = 'symbol';
+        span.textContent = symbolList[Math.floor(Math.random() * symbolList.length)];
+        span.style.left = Math.random() * 100 + '%';
+        span.style.fontSize = (0.5 + Math.random() * 1.2) + 'rem';
+        span.style.animationDuration = (6 + Math.random() * 10) + 's';
+        span.style.animationDelay = (Math.random() * 3) + 's';
+        container.appendChild(span);
+        setTimeout(() => span.remove(), 16000);
+    }
+
+    setInterval(spawnSymbol, 600);
+    for (let i = 0; i < 8; i++) spawnSymbol();
+</script>
+
+</body>
+</html>
